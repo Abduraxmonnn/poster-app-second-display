@@ -51,7 +51,7 @@ export default class MainApp extends React.Component {
             console.log('Order opened payload: ', payload)
 
             Poster.makeRequest(
-                this.getUrl() + `/order/open/`,
+                this.getUrl() + `/api/v1/order/open/`,
                 {
                     headers: ["Content-Type: application/json"],
                     method: "post",
@@ -60,12 +60,11 @@ export default class MainApp extends React.Component {
                 },
                 async (res) => {
                     // if (!res?.result?.is_success) {
-                    //     this.setState({isProcessing: false});
+                    //
                     //     return;
                     // }
-                    //
-                    // await this.order_create_function(cardType, orderSnapshot);
-                    //
+                    console.log(res);
+
                     // Poster.interface.closePopup();
                     // this.setState({isProcessing: false});
                 }
