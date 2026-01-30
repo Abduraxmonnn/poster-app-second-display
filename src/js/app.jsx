@@ -2,7 +2,7 @@ import '../css/main.scss';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import MainApp from '../../examples/hello-world/app';
+import MainApp from '../../media-display/app';
 
 class ExampleApp extends React.Component {
     render() {
