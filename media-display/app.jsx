@@ -48,7 +48,6 @@ export default class MainApp extends React.Component {
             console.log(this.state.name, '===> orderOpen Payload', JSON.stringify(payload, null, 2))
 
             this.checkAndShowMissingIP()
-            console.log(this.state.name, '===>', this.getUrl() + `/api/order`)
             const params = encodeURIComponent(JSON.stringify(payload));
             Poster.makeRequest(
                 this.getUrl() + `/api/order?data=${params}`,
@@ -78,7 +77,6 @@ export default class MainApp extends React.Component {
             console.log(this.state.name, '===> afterOrderClose Payload', JSON.stringify(payload, null, 2))
 
             this.checkAndShowMissingIP()
-            console.log(this.state.name, '===>', this.getUrl() + `/api/close`)
             Poster.makeRequest(
                 this.getUrl() + `/api/order/close`,
                 {
@@ -141,7 +139,6 @@ export default class MainApp extends React.Component {
                 items: itemsWithTotals
             };
 
-            console.log(this.state.name, '===> HERE ', this.getUrl() + `/api/order`)
             this.checkAndShowMissingIP()
             const params = encodeURIComponent(JSON.stringify(payload));
             Poster.makeRequest(
