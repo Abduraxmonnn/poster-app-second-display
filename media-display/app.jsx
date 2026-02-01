@@ -14,7 +14,7 @@ export default class MainApp extends React.Component {
 
         this.state = {
             name: "Media Display",
-            version: "ver. 0.0.4 dev",
+            version: "ver. 0.0.2 dev",
             result: "",
             input: ip_address,
             img_logo: "https://dev.joinposter.com/public/apps/testinguz/icon.webp",
@@ -38,9 +38,9 @@ export default class MainApp extends React.Component {
 
             let payload = {
                 isOpen: true,
-                orderNumber: order.order.id,
+                orderNumber: String(order.order.id),
                 timestamp: new Date().toISOString(),
-                totalAmount: 0,
+                totalAmount: Number(0),
                 currency: "СУМ",
                 items: []
             };
@@ -49,12 +49,12 @@ export default class MainApp extends React.Component {
 
             this.checkAndShowMissingIP()
             console.log(this.state.name, '===>', this.getUrl() + `/api/order`)
+            const params = encodeURIComponent(JSON.stringify(payload));
             Poster.makeRequest(
-                this.getUrl() + `/api/order`,
+                this.getUrl() + `/api/order?data=${params}`,
                 {
-                    headers: ["Content-Type: application/json"],
-                    method: "post",
-                    payload: JSON.stringify(payload),
+                    method: "POST",
+                    // payload: JSON.stringify(payload),
                     localRequest: true,
                 },
                 async (res) => {
@@ -82,9 +82,8 @@ export default class MainApp extends React.Component {
             Poster.makeRequest(
                 this.getUrl() + `/api/order/close`,
                 {
-                    headers: ["Content-Type: application/json"],
-                    method: "post",
-                    payload: JSON.stringify(payload),
+                    method: "POST",
+                    payload: payload,
                     localRequest: true,
                 },
                 async (res) => {
@@ -134,7 +133,7 @@ export default class MainApp extends React.Component {
             );
 
             const payload = {
-                isOrder: true,
+                isOpen: true,
                 orderNumber: String(order.order.id),
                 timestamp: new Date().toISOString(),
                 totalAmount,
@@ -142,26 +141,14 @@ export default class MainApp extends React.Component {
                 items: itemsWithTotals
             };
 
-            // // Calculate totalAmount by summing all itemTotal values
-            // const totalAmount = items.reduce((sum, item) => sum + item.itemTotal, 0);
-            //
-            // const payload = {
-            //     orderNumber: String(order.order.id),
-            //     totalAmount: totalAmount,
-            //     currency: "СУМ",
-            //     items: items
-            // };
-
             console.log(this.state.name, '===> HERE ', this.getUrl() + `/api/order`)
             this.checkAndShowMissingIP()
+            const params = encodeURIComponent(JSON.stringify(payload));
             Poster.makeRequest(
-                this.getUrl() + `/api/order`,
+                this.getUrl() + `/api/order?data=${params}`,
                 {
-                    method: "post",
-                    headers: [
-                        "Content-Type: application/json"
-                    ],
-                    body: JSON.stringify(payload),
+                    method: "POST",
+                    // payload: JSON.stringify(payload),
                     localRequest: true,
                 },
                 async (res) => {
@@ -184,7 +171,7 @@ export default class MainApp extends React.Component {
 
     getUrl = () => {
         var url = localStorage.getItem("ip_address") || "";
-        return url.includes("http") ? url : "http://" + url + ":9090";
+        return url.includes("http") ? url : "http://" + url + ":9000";
     };
 
     checkAndShowMissingIP = () => {
