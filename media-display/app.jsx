@@ -14,7 +14,7 @@ export default class MainApp extends React.Component {
 
         this.state = {
             name: "Media Display",
-            version: "ver. 0.0.2 dev",
+            version: "ver. 1.0.0 dev",
             result: "",
             input: ip_address,
             img_logo: "https://dev.joinposter.com/public/apps/testinguz/icon.webp",
@@ -38,7 +38,7 @@ export default class MainApp extends React.Component {
 
             let payload = {
                 isOpen: true,
-                orderNumber: String(order.order.id),
+                orderNumber: String(order.order.orderName),
                 timestamp: new Date().toISOString(),
                 totalAmount: Number(0),
                 currency: "СУМ",
@@ -47,7 +47,7 @@ export default class MainApp extends React.Component {
 
             console.log(this.state.name, '===> orderOpen Payload', JSON.stringify(payload, null, 2))
 
-            this.checkAndShowMissingIP()
+            // this.checkAndShowMissingIP()
             const params = encodeURIComponent(JSON.stringify(payload));
             Poster.makeRequest(
                 this.getUrl() + `/api/order?data=${params}`,
@@ -68,7 +68,7 @@ export default class MainApp extends React.Component {
             console.log(this.state.name, '===> Order closed: ', order);
 
             let payload = {
-                orderNumber: String(order.order.id),
+                orderNumber: String(order.order.orderName),
                 totalAmount: 0,
                 currency: "СУМ",
                 items: []
@@ -76,7 +76,7 @@ export default class MainApp extends React.Component {
 
             console.log(this.state.name, '===> afterOrderClose Payload', JSON.stringify(payload, null, 2))
 
-            this.checkAndShowMissingIP()
+            // this.checkAndShowMissingIP()
             Poster.makeRequest(
                 this.getUrl() + `/api/order/close`,
                 {
@@ -86,7 +86,6 @@ export default class MainApp extends React.Component {
                 },
                 async (res) => {
                     console.log(this.state.name, "===> afterOrderClose Server Response:", res);
-                    // Poster.interface.closePopup();
                 }
             );
         });
@@ -101,16 +100,22 @@ export default class MainApp extends React.Component {
             const items = (
                 await Promise.all(
                     productsArray.map(async (prod) => {
-                        const prodName = await Poster.products.getFullName({id: prod.id});
+                        const prodName = await Poster.products.getFullName({
+                            id: prod.id,
+                            modification: prod.modification
+                        });
+                        console.log(this.state.name, "===> Product Full Name:", prodName);
                         const name = prodName?.name ?? "Unknown Product";
+                        const modName = prodName?.modGroupName ?? "";
 
-                        const quantity = Number(prod.count) || 0;
-                        const price = Number(prod.price) || 0;
-                        const itemTotal = Math.round(quantity * price);
+                        const count = Number(prod.count) || 0;
+                        const price = Math.round(Number(count * prod.price)) || 0;
+                        const itemTotal = Math.round(count * prod.price);
 
                         return {
                             name,
-                            quantity,
+                            modName,
+                            count,
                             price,
                             itemTotal
                         };
@@ -120,26 +125,28 @@ export default class MainApp extends React.Component {
 
             const itemsWithTotals = items.map(item => ({
                 name: item.name,
-                quantity: item.quantity,
+                modName: item.modName,
+                quantity: item.count,
                 price: item.price,
-                itemTotal: item.price * item.quantity
+                itemTotal: item.itemTotal
             }));
 
-            const totalAmount = itemsWithTotals.reduce(
-                (sum, item) => sum + item.itemTotal,
-                0
-            );
+            const totalAmount = order.order.total;
+            const tipAmount = order.order.tipSum;
+            const totalAmountWithoutTip = totalAmount - tipAmount;
 
             const payload = {
                 isOpen: true,
-                orderNumber: String(order.order.id),
+                orderNumber: String(order.order.orderName),
                 timestamp: new Date().toISOString(),
                 totalAmount,
+                tipAmount: tipAmount,
+                totalAmountWithoutTip: totalAmountWithoutTip,
                 currency: "UZS",
                 items: itemsWithTotals
             };
 
-            this.checkAndShowMissingIP()
+            // this.checkAndShowMissingIP()
             const params = encodeURIComponent(JSON.stringify(payload));
             Poster.makeRequest(
                 this.getUrl() + `/api/order?data=${params}`,
